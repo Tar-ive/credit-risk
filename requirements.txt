@@ -1,0 +1,10 @@
+Xgboost
+pandas 
+numpy 
+matplotlib 
+scikit-learn 
+seaborn 
+pickle 
+flask 
+flask-cors
+mysql-connector-python

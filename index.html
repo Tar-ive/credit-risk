@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Default Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .form-container, .result-container {
+            flex-basis: 48%;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .default {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        .no-default {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .chart-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        #explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+        #explanation ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Credit Default Prediction</h1>
+    <div class="container">
+        <div class="form-container">
+            <form id="predictionForm">
+                <label for="RevolvingUtilizationOfUnsecuredLines">Revolving Utilization Of Unsecured Lines:</label>
+                <input type="number" id="RevolvingUtilizationOfUnsecuredLines" required step="0.01" min="0" max="1">
+                
+                <label for="age">Age:</label>
+                <input type="number" id="age" required min="18" max="120">
+                
+                <label for="NumberOfTime30-59DaysPastDueNotWorse">Number Of Time 30-59 Days Past Due Not Worse:</label>
+                <input type="number" id="NumberOfTime30-59DaysPastDueNotWorse" required min="0">
+                
+                <label for="DebtRatio">Debt Ratio:</label>
+                <input type="number" id="DebtRatio" required step="0.01" min="0">
+                
+                <label for="MonthlyIncome">Monthly Income:</label>
+                <input type="number" id="MonthlyIncome" required min="0">
+                
+                <label for="NumberOfOpenCreditLinesAndLoans">Number Of Open Credit Lines And Loans:</label>
+                <input type="number" id="NumberOfOpenCreditLinesAndLoans" required min="0">
+                
+                <label for="NumberOfTimes90DaysLate">Number Of Times 90 Days Late:</label>
+                <input type="number" id="NumberOfTimes90DaysLate" required min="0">
+                
+                <label for="NumberRealEstateLoansOrLines">Number Real Estate Loans Or Lines:</label>
+                <input type="number" id="NumberRealEstateLoansOrLines" required min="0">
+                
+                <label for="NumberOfTime60-89DaysPastDueNotWorse">Number Of Time 60-89 Days Past Due Not Worse:</label>
+                <input type="number" id="NumberOfTime60-89DaysPastDueNotWorse" required min="0">
+                
+                <label for="NumberOfDependents">Number Of Dependents:</label>
+                <input type="number" id="NumberOfDependents" required min="0">
+                
+                <button type="submit">Predict</button>
+            </form>
+        </div>
+        <div class="result-container">
+            <div id="result"></div>
+            <div id="loading" class="loading" style="display:none;">Predicting...</div>
+            <div id="explanation"></div>
+            <div class="chart-container">
+                <canvas id="featureChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="chart-container">
+        <h2>Age vs Debt Ratio Scatter Plot</h2>
+        <canvas id="scatterChart"></canvas>
+    </div>
+
+    <script>
+        let featureChart;
+        let scatterChart;
+        const scatterData = [];
+
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                RevolvingUtilizationOfUnsecuredLines: parseFloat(document.getElementById('RevolvingUtilizationOfUnsecuredLines').value),
+                age: parseInt(document.getElementById('age').value),
+                'NumberOfTime30-59DaysPastDueNotWorse': parseInt(document.getElementById('NumberOfTime30-59DaysPastDueNotWorse').value),
+                DebtRatio: parseFloat(document.getElementById('DebtRatio').value),
+                MonthlyIncome: parseFloat(document.getElementById('MonthlyIncome').value),
+                NumberOfOpenCreditLinesAndLoans: parseInt(document.getElementById('NumberOfOpenCreditLinesAndLoans').value),
+                NumberOfTimes90DaysLate: parseInt(document.getElementById('NumberOfTimes90DaysLate').value),
+                NumberRealEstateLoansOrLines: parseInt(document.getElementById('NumberRealEstateLoansOrLines').value),
+                'NumberOfTime60-89DaysPastDueNotWorse': parseInt(document.getElementById('NumberOfTime60-89DaysPastDueNotWorse').value),
+                NumberOfDependents: parseInt(document.getElementById('NumberOfDependents').value)
+            };
+            
+            const loadingDiv = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            const explanationDiv = document.getElementById('explanation');
+            
+            try {
+                loadingDiv.style.display = 'block';
+                resultDiv.innerHTML = '';
+                resultDiv.className = '';
+                explanationDiv.innerHTML = '';
+
+                const response = await axios.post('http://localhost:5000/predict', formData);
+                const prediction = response.data.default_prediction ? 'Default' : 'No Default';
+                const probability = response.data.default_probability;
+                
+                resultDiv.innerHTML = `Prediction: ${prediction} (Probability: ${(probability * 100).toFixed(2)}%)`;
+                resultDiv.className = prediction === 'Default' ? 'default' : 'no-default';
+
+                explanationDiv.innerHTML = generateExplanation(formData, response.data.default_prediction);
+
+                updateCharts(formData, response.data.default_prediction);
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = 'An error occurred: ' + (error.response ? error.response.data.error : error.message);
+                resultDiv.className = 'default';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+
+        function generateExplanation(data, prediction) {
+            let explanation = `Based on the provided information, the prediction is: <strong>${prediction ? 'Default' : 'No Default'}</strong>.<br><br>`;
+            explanation += "Key factors influencing this prediction:<br><ul>";
+
+            if (data.RevolvingUtilizationOfUnsecuredLines > 0.5) {
+                explanation += `<li>High utilization of unsecured credit lines (${(data.RevolvingUtilizationOfUnsecuredLines * 100).toFixed(1)}%) suggests increased financial stress.</li>`;
+            }
+
+            if (data.age < 30) {
+                explanation += "<li>Younger age may indicate less established credit history.</li>";
+            } else if (data.age > 60) {
+                explanation += "<li>Older age might suggest more stable financial situation.</li>";
+            }
+
+            if (data['NumberOfTime30-59DaysPastDueNotWorse'] > 0) {
+                explanation += `<li>History of late payments (${data['NumberOfTime30-59DaysPastDueNotWorse']} times 30-59 days past due) indicates potential difficulty in managing debts.</li>`;
+            }
+
+            if (data.DebtRatio > 1) {
+                explanation += `<li>High debt ratio (${data.DebtRatio.toFixed(2)}) suggests significant financial burden relative to income.</li>`;
+            }
+
+            if (data.MonthlyIncome < 3000) {
+                explanation += "<li>Lower monthly income may impact ability to manage debts.</li>";
+            } else if (data.MonthlyIncome > 10000) {
+                explanation += "<li>Higher monthly income suggests better capacity to handle financial obligations.</li>";
+            }
+
+            if (data.NumberOfOpenCreditLinesAndLoans > 10) {
+                explanation += `<li>Large number of open credit lines and loans (${data.NumberOfOpenCreditLinesAndLoans}) might indicate overextension of credit.</li>`;
+            }
+
+            if (data.NumberOfTimes90DaysLate > 0) {
+                explanation += `<li>History of serious delinquency (${data.NumberOfTimes90DaysLate} times 90+ days late) is a strong indicator of credit risk.</li>`;
+            }
+
+            if (data.NumberRealEstateLoansOrLines > 2) {
+                explanation += `<li>Multiple real estate loans or lines (${data.NumberRealEstateLoansOrLines}) could suggest higher financial commitments.</li>`;
+            }
+
+            explanation += "</ul>";
+            explanation += "<br>Please note that this explanation is based on general financial principles and the specific model used may weigh factors differently.";
+
+            return explanation;
+        }
+
+        function updateCharts(data, prediction) {
+            updateFeatureChart(data);
+            updateScatterChart(data, prediction);
+        }
+
+        function updateFeatureChart(data) {
+            const ctx = document.getElementById('featureChart').getContext('2d');
+            
+            const labels = Object.keys(data).filter(key => key !== 'prediction');
+            const values = labels.map(label => data[label]);
+
+            if (featureChart) {
+                featureChart.destroy();
+            }
+
+            featureChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Feature Values',
+                        data: values,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Input Feature Values'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateScatterChart(newData, prediction) {
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+            
+            scatterData.push({
+                x: newData.age,
+                y: newData.DebtRatio,
+                prediction: prediction
+            });
+
+            if (scatterData.length > 50) {
+                scatterData.shift();
+            }
+
+            if (scatterChart) {
+                scatterChart.destroy();
+            }
+
+            scatterChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Age vs Debt Ratio',
+                        data: scatterData,
+                        backgroundColor: (context) => {
+                            const prediction = context.raw.prediction;
+                            return prediction ? 'rgba(255, 99, 132, 0.8)' : 'rgba(75, 192, 192, 0.8)';
+                        },
+                        pointRadius: 8,
+                        pointHoverRadius: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            },
+                            suggestedMin: 18,
+                            suggestedMax: 100
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Debt Ratio'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: Math.max(...scatterData.map(d => d.y)) * 1.1
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const point = context.raw;
+                                    return `Age: ${point.x}, Debt Ratio: ${point.y.toFixed(2)}, Prediction: ${point.prediction ? 'Default' : 'No Default'}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Age vs Debt Ratio (Last 50 Predictions)',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
