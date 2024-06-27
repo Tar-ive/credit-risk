@@ -183,9 +183,8 @@
 
                 const response = await axios.post('https://credit-427620.uc.r.appspot.com/predict', formData);
                 const prediction = response.data.default_prediction ? 'Default' : 'No Default';
-                const probability = response.data.default_probability;
                 
-                resultDiv.innerHTML = `Prediction: ${prediction} (Probability: ${(probability * 100).toFixed(2)}%)`;
+                resultDiv.innerHTML = `Prediction: ${prediction}`;
                 resultDiv.className = prediction === 'Default' ? 'default' : 'no-default';
 
                 explanationDiv.innerHTML = generateExplanation(formData, response.data.default_prediction);
@@ -246,9 +245,9 @@
             return explanation;
         }
 
-        function updateCharts(data, prediction) {
+        function updateCharts(data) {
             updateFeatureChart(data);
-            updateScatterChart(data, prediction);
+            updateScatterChart(data);
         }
 
         function updateFeatureChart(data) {
@@ -290,13 +289,12 @@
             });
         }
 
-        function updateScatterChart(newData, prediction) {
+        function updateScatterChart(newData) {
             const ctx = document.getElementById('scatterChart').getContext('2d');
             
             scatterData.push({
                 x: newData.age,
-                y: newData.DebtRatio,
-                prediction: prediction
+                y: newData.DebtRatio
             });
 
             if (scatterData.length > 50) {
@@ -313,10 +311,7 @@
                     datasets: [{
                         label: 'Age vs Debt Ratio',
                         data: scatterData,
-                        backgroundColor: (context) => {
-                            const prediction = context.raw.prediction;
-                            return prediction ? 'rgba(255, 99, 132, 0.8)' : 'rgba(75, 192, 192, 0.8)';
-                        },
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
                         pointRadius: 8,
                         pointHoverRadius: 12
                     }]
@@ -350,7 +345,7 @@
                             callbacks: {
                                 label: (context) => {
                                     const point = context.raw;
-                                    return `Age: ${point.x}, Debt Ratio: ${point.y.toFixed(2)}, Prediction: ${point.prediction ? 'Default' : 'No Default'}`;
+                                    return `Age: ${point.x}, Debt Ratio: ${point.y.toFixed(2)}`;
                                 }
                             }
                         },
