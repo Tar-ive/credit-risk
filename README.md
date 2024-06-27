@@ -10,41 +10,47 @@ Provides an explanation of the key factors influencing the prediction.
 Visualizes input feature values and the relationship between age and debt ratio.  
 
 # Technologies Used
-**Backend: **Python, Flask, Gunicorn
-**Frontend:** HTML, CSS, JavaScript, Chart.js
-**Machine Learning:** Scikit-learn (XGBoost)
-**Deployment:** Docker, Google App Engine
+**Backend:** Python, Flask, Gunicorn  
+**Frontend:** HTML, CSS, JavaScript, Chart.js  
+**Machine Learning:** Scikit-learn (XGBoost)  
+**Deployment:** Docker, Google App Engine  
+ 
+### Prerequisites
 
-# Installation and Setup
-**Prerequisites**
-Python 3.9
-Docker
-Google Cloud SDK (for deployment)
-Local Setup
-Clone the Repository
+Ensure you have the following installed on your machine:
 
-sh
-Copy code
-git clone https://github.com/yourusername/credit-default-prediction.git
-cd credit-default-prediction
-Set Up Virtual Environment
+- Python 3.9
+- Docker
+- Google Cloud SDK (for deployment)
 
+### Local Setup
+
+Follow these steps to set up the application locally:
+
+1. **Clone the Repository**
+
+   ```sh
+   git clone https://github.com/Tar-ive/credit-risk.git
+   cd credit-default-prediction
 sh
 Copy code
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-Install Dependencies
+
+2. **Install Dependencies**
 
 sh
 Copy code
 pip install -r requirements.txt
-Run the Flask Application
+
+3. **Run the Flask Application**
 
 sh
 Copy code
 gunicorn --bind :8080 model:app
 Access the application at http://localhost:8080.
-Docker Setup
+
+4. **Docker Setup**
 Build Docker Image
 
 sh
@@ -56,7 +62,8 @@ sh
 Copy code
 docker run -p 8080:8080 credit-prediction-app
 Access the application at http://localhost:8080.
-Deployment to Google App Engine
+  
+5. **Deployment to Google App Engine**
 Authenticate with GCP
 
 sh
