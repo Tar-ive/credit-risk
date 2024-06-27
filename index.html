@@ -181,7 +181,7 @@
                 resultDiv.className = '';
                 explanationDiv.innerHTML = '';
 
-                const response = await axios.post('http://localhost:5000/predict', formData);
+                const response = await axios.post('https://credit-427620.uc.r.appspot.com/predict', formData);
                 const prediction = response.data.default_prediction ? 'Default' : 'No Default';
                 const probability = response.data.default_probability;
                 
