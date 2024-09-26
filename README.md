@@ -7,22 +7,50 @@ Credit Default Prediction is a web application that predicts whether a customer 
 
 ## Project Structure
 
- credit-risk/
-├── .vs/                      # Visual Studio configuration
+credit-risk/
+│
+├── .vs/
+│   # Visual Studio configuration
+│
 ├── data/
-│   └── default of credit card clients.xls   # Raw data file
-├── model/                    # Model-related files and notebooks
-├── resources/                # Additional project resources
-├── Dockerfile.txt            # Docker configuration
-├── README.md                 # Project documentation
-├── app.yaml                  # App Engine configuration
-├── cs-training.csv           # Training dataset
-├── db.sql                    # Database schema
-├── index.html                # Frontend interface
-├── model.py                  # Main application logic
-├── netlify.toml              # Netlify deployment configuration
-├── requirements.txt          # Python dependencies
-└── xgboost_model.pkl         # Trained XGBoost model
+│   └── default of credit card clients.xls
+│       # Raw data file
+│
+├── model/
+│   # Model-related files and notebooks
+│
+├── resources/
+│   # Additional project resources
+│
+├── Dockerfile.txt
+│   # Docker configuration
+│
+├── README.md
+│   # Project documentation
+│
+├── app.yaml
+│   # App Engine configuration
+│
+├── cs-training.csv
+│   # Training dataset
+│
+├── db.sql
+│   # Database schema
+│
+├── index.html
+│   # Frontend interface
+│
+├── model.py
+│   # Main application logic
+│
+├── netlify.toml
+│   # Netlify deployment configuration
+│
+├── requirements.txt
+│   # Python dependencies
+│
+└── xgboost_model.pkl
+    # Trained XGBoost model
 
 ## Features
 
