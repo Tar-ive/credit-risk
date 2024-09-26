@@ -3,30 +3,37 @@
 [Live Demo](https://credit-risk.netlify.app/)
 
 ## Overview
-
 Credit Default Prediction is a web application that predicts whether a customer will default on their credit based on various financial factors. The application uses an XGBoost model to make predictions and presents the results in an easy-to-use web interface.
+
+## Project Structure
+
+.vs/: Visual Studio configuration directory
+data/: Contains the credit card clients data file (XLS format)
+model/: Directory for model-related files
+resources/: Additional resources for the project
+Dockerfile.txt: Docker configuration file
+README.md: This file, providing an overview of the project
+app.yaml: Configuration file for deployment
+cs-training.csv: Training data file
+db.sql: Database schema file
+index.html: Frontend code
+model.py: Main application code
+netlify.toml: Netlify configuration file
+requirements.txt: Python dependencies
+xgboost_model.pkl: Saved XGBoost model file
 
 ## Features
 
-- Predicts credit default using multiple financial features
-- Displays the prediction (Default or No Default) without showing the probability
-- Provides an explanation of the key factors influencing the prediction
-- Visualizes input feature values and the relationship between age and debt ratio
+Predicts credit default using multiple financial features
+Displays the prediction results in a web interface
+Uses an XGBoost model for predictions
 
 ## Technologies Used
 
-- **Backend:** Python, Flask, Gunicorn
-- **Frontend:** HTML, CSS, JavaScript, Chart.js
-- **Machine Learning:** Scikit-learn (XGBoost)
-- **Deployment:** Docker, Google App Engine
-
-## Prerequisites
-
-Ensure you have the following installed on your machine:
-
-- Python 3.9
-- Docker
-- Google Cloud SDK (for deployment)
+Backend: Python, Flask
+Frontend: HTML, CSS, JavaScript
+Machine Learning: Scikit-learn, XGBoost
+Deployment: Docker, Netlify
 
 ## Local Setup
 
@@ -95,13 +102,6 @@ Follow these steps to set up the application locally:
 3. Get Prediction
 4. View Explanation and Charts
 
-## File Structure
-
-- `app.yaml`: Configuration file for Google App Engine
-- `Dockerfile`: Docker configuration file
-- `requirements.txt`: Python dependencies
-- `model.py`: Main application code
-- `index.html`: Frontend code
 
 ## Contributing
 
